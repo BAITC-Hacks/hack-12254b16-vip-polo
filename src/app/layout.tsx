@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Аким на 5 часов — VIP POLO",
-  description: "Учебная модель управления условным городом. Нулевой этап разработки."
+  description: "Пять решений, три района и один бюджет. Учебная модель управления условным городом."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -9,6 +9,8 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:3100", trace: "retain-on-failure" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
+    // Ordinary browser checks must not contact a paid provider or need secrets.
+    env: { AI_API_KEY: "", AI_PROVIDER: "", AI_MODEL: "" },
     command: "pnpm start --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: false,

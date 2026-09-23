@@ -1,0 +1,56 @@
+.panel { min-width: 0; }
+.map { display: block; width: 100%; height: auto; background: #f1f0e6; border: 1px solid #d8dece; border-radius: 12px; }
+.decorative { pointer-events: none; }
+.grid { fill: none; stroke: #e5e6d9; stroke-width: 1; }
+.riverBank { fill: none; stroke: #dce5ce; stroke-width: 53; }
+.river { fill: none; stroke: #b8d7d8; stroke-width: 35; }
+.waterLine { fill: none; stroke: #dceff0; stroke-width: 2; stroke-dasharray: 9 14; }
+.embankment { fill: none; stroke: #a4bcb3; stroke-width: 1.5; stroke-dasharray: 3 5; }
+.district { cursor: pointer; }
+.districtShape { fill: #e3e8d5; stroke: #a9b49a; stroke-width: 1.5; transition: fill .15s ease, stroke .15s ease; }
+.district:hover .districtShape { fill: #dce7c6; stroke: #6b855b; stroke-width: 2.5; }
+.selectedDistrict .districtShape, .selectedDistrict:hover .districtShape { fill: #dce9c8; stroke: #3c6344; stroke-width: 3.5; }
+.district:focus-visible { outline: none; }
+.district:focus-visible .districtShape { stroke: #a64820; stroke-width: 6; }
+.minorRoad { fill: none; stroke: #f7f7ef; stroke-width: 5; }
+.roadEdge { fill: none; stroke: #d4d8c8; stroke-width: 13; }
+.road { fill: none; stroke: #fffdf4; stroke-width: 10; }
+.buildingShadow { fill: #b9c2ad; opacity: .5; }
+.building { fill: #ccd5be; stroke: #b4c0a3; stroke-width: 1; }
+.roof { fill: none; stroke: #e8eddf; stroke-width: 2; }
+.park { fill: #c3d7a6; stroke: #acc692; stroke-width: 1; }
+.parkPath { fill: none; stroke: #e8edcf; stroke-width: 3; }
+.treeShadow { fill: #9fb887; }
+.tree { fill: #809e6b; stroke: #e2eccc; stroke-width: 1; }
+.landmark > rect { fill: #f7f5e9; stroke: #9fae90; stroke-width: 1; }
+.landmark > path { fill: none; stroke: #5c7950; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.landmark > text { fill: #52674a; font-size: 14px; text-anchor: middle; paint-order: stroke; stroke: #f1f0e6; stroke-width: 3; }
+.labelPlate { fill: #fffdf5; stroke: #c4cfb7; stroke-width: 1; }
+.mapLabel { fill: #344e36; font-size: 21px; font-weight: 600; }
+.mapHint { fill: #637459; font-size: 14px; }
+.selectedDistrict .labelPlate { fill: #31593e; stroke: #24492f; }
+.selectedDistrict .mapLabel { fill: #fffdf2; }
+.selectedDistrict .mapHint { fill: #e4edcf; }
+.bridgeEdge { fill: none; stroke: #899e8b; stroke-width: 14; }
+.bridge { fill: none; stroke: #fffbed; stroke-width: 10; }
+.bridgeLane { fill: none; stroke: #bdc6ae; stroke-width: 1.5; stroke-dasharray: 5 5; }
+.compassPlate { fill: #faf9f0; stroke: #d1d9c5; }
+.compass { fill: #5c6c52; font-size: 12px; font-weight: 600; }
+.compassArrow, .scale { fill: none; stroke: #6c7c60; stroke-width: 1.6; }
+.riverLabel { fill: #557f83; font-size: 11px; letter-spacing: 1px; }
+.mapNote { fill: #6c7c60; font-size: 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 13px; font-size: .68rem; color: #52644c; }
+.legend > span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+.parkKey { background: #c3d7a6; border: 1px solid #9eb982; }
+.blockKey { background: #ccd5be; border: 1px solid #aab899; }
+.waterKey { background: #b8d7d8; border: 1px solid #94bfc2; }
+.selectedKey { background: #31593e; }
+.disclaimer { font-size: .72rem; line-height: 1.55; color: #5e6d55; margin: 12px 0 0; }
+@media (max-width: 640px) {
+  .mapLabel { font-size: 24px; }
+  .mapHint, .landmark > text { font-size: 18px; }
+  .mapNote { font-size: 16px; }
+  .legend { font-size: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) { .districtShape { transition: none; } }

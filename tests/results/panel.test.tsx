@@ -1,0 +1,190 @@
+// @vitest-environment jsdom
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ResultsPanel } from "@/features/results";
+import { ScenarioTrace } from "@/features/game/ScenarioTrace";
+import { createResultsExport } from "@/features/results/export";
+import { getGameData } from "@/lib/simulation";
+import type { ResultsPanelProps } from "@/shared/ports";
+import type { AIAnalysis, SimulationResult } from "@/shared/types";
+import { scenarios } from "../fixtures";
+
+afterEach(cleanup);
+
+function resultFor(name: "A" | "B" | "C" | "E" = "A"): SimulationResult {
+  const expected = scenarios[name].expected;
+  if (!expected.ok) throw new Error("A successful fixture is required");
+  return structuredClone(expected.data);
+}
+
+function props(overrides: Partial<ResultsPanelProps> = {}): ResultsPanelProps {
+  return { result: resultFor(), analysisState: { status: "idle" }, onRetryAnalysis: vi.fn(), onReplay: vi.fn(), onEdit: vi.fn(), ...overrides };
+}
+
+// The integrated page composes owner 3's panel with owner 1's trace view.
+function renderWithTrace(overrides: Partial<ResultsPanelProps> = {}) {
+  const current = props(overrides);
+  return render(<><ResultsPanel {...current} /><ScenarioTrace result={current.result} data={getGameData()} /></>);
+}
+
+function analysisFor(result: SimulationResult, overrides: Partial<AIAnalysis> = {}): AIAnalysis {
+  return {
+    scenarioId: result.scenarioId, modelVersion: result.modelVersion, datasetVersion: result.datasetVersion,
+    source: "ai", status: "ready", summary: { text: "Результат связан с проверенными фактами.", factIds: ["score:after", "budget:spent"] },
+    strengths: [{ text: "Изменились показатели района.", factIds: ["district:north:transport:after"] }],
+    risks: [], tradeoffs: [], recommendations: [], ...overrides,
+  };
+}
+
+describe("ResultsPanel", () => {
+  it.each([[
+    "A", "51,67", "50", "+1,67",
+  ], ["B", "52,53", "70", "+2,53"], ["C", "53,33", "100", "+3,33"]] as const)("shows the supplied %s score, budget and all district metrics", (name, score, spent, delta) => {
+    renderWithTrace({ result: resultFor(name) });
+    const scorePanel = within(screen.getByRole("region", { name: "Astana Quality of Life Score" }));
+    expect(scorePanel.getByText(score, { exact: false })).toBeVisible();
+    expect(scorePanel.getByText(delta)).toBeVisible();
+    expect(screen.getByRole("progressbar", { name: "Использованный бюджет" })).toHaveAttribute("value", spent);
+    expect(screen.getByRole("table", { name: "Город целиком" })).toBeVisible();
+    for (const district of getGameData().districts) {
+      expect(within(screen.getByRole("table", { name: `${district.name} район` })).getAllByRole("row")).toHaveLength(6);
+    }
+    expect(screen.getByText("Все направления включены в план")).toBeVisible();
+  });
+
+  it.each(["modelVersion", "datasetVersion"] as const)("uses full district IDs when the catalog has a different %s", field => {
+    const result = resultFor();
+    result[field] = "unavailable-version";
+    render(<ResultsPanel {...props({ result })} />);
+    for (const district of getGameData().districts) {
+      expect(screen.getByRole("table", { name: `Район ${district.id}` })).toBeVisible();
+      expect(screen.queryByRole("table", { name: `${district.name} район` })).not.toBeInTheDocument();
+    }
+  });
+
+  it("preserves the full ID for a district absent from the matching catalog", () => {
+    const result = resultFor();
+    result.districts[0].districtId = "unregistered-district-id";
+    render(<ResultsPanel {...props({ result })} />);
+    expect(screen.getByRole("table", { name: "Район unregistered-district-id" })).toBeVisible();
+    expect(screen.queryByRole("table", { name: "Северный район" })).not.toBeInTheDocument();
+  });
+
+  it("presents every supplied score value without calculating a substitute", () => {
+    const result = resultFor();
+    result.score = { before: 30, after: 27.25, delta: -2.75 };
+    render(<ResultsPanel {...props({ result })} />);
+    const score = within(screen.getByRole("region", { name: "Astana Quality of Life Score" }));
+    expect(score.getByText("27,25", { exact: false })).toBeVisible();
+    expect(score.getByText("30")).toBeVisible();
+    expect(score.getByText("-2,75")).toBeVisible();
+  });
+
+  it("distinguishes an incomplete draft and keeps the supplied object intact", () => {
+    const result = resultFor("E");
+    const before = structuredClone(result);
+    render(<ResultsPanel {...props({ result })} />);
+    expect(screen.getByText(/Промежуточный результат/)).toBeVisible();
+    expect(result).toEqual(before);
+  });
+
+  it("explains every rule, including both opposing contributions, raw sum and clamp", async () => {
+    const result = resultFor("B");
+    renderWithTrace({ result });
+    const user = userEvent.setup();
+    await user.click(screen.getByText("Откуда взялись числа"));
+    const north = within(screen.getByRole("region", { name: "Разбор: Северный" }));
+    await user.click(north.getByText("Транспорт"));
+    const transport = north.getByText("Транспорт").closest("details");
+    expect(transport).toHaveAttribute("open");
+    const detail = within(transport!);
+    expect(detail.getByText("transport-premium:gain")).toBeVisible();
+    expect(detail.getByText("service-basic:tradeoff")).toBeVisible();
+    expect(detail.getByText("+21")).toBeVisible();
+    expect(detail.getByText("-1")).toBeVisible();
+    expect(detail.getByText("Сумма до ограничения").nextElementSibling).toHaveTextContent("60");
+    expect(detail.getByText("Поправка ограничения (clamp)").nextElementSibling).toHaveTextContent("0");
+    const trace = within(screen.getByText("Откуда взялись числа").closest("details")!);
+    for (const entry of result.trace) for (const contribution of entry.contributions) {
+      expect(trace.getByText(contribution.ruleId)).toBeInTheDocument();
+    }
+    for (const decision of result.decisions) {
+      const initiative = getGameData().initiatives.find(item => item.id === decision.initiativeId)!;
+      expect(screen.getAllByText(initiative.description).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("shows the provided nonzero clamp adjustment and does not recompute it", async () => {
+    const result = resultFor();
+    const entry = result.trace.find(item => item.districtId === "north" && item.metric === "transport")!;
+    entry.rawAfter = 109; entry.clampAdjustment = -9; entry.after = 100;
+    renderWithTrace({ result });
+    await userEvent.click(screen.getByText("Откуда взялись числа"));
+    const north = within(screen.getByRole("region", { name: "Разбор: Северный" }));
+    await userEvent.click(north.getByText("Транспорт"));
+    const detail = within(north.getByText("Транспорт").closest("details")!);
+    expect(detail.getByText("Сумма до ограничения").nextElementSibling).toHaveTextContent("109");
+    expect(detail.getByText("Поправка ограничения (clamp)").nextElementSibling).toHaveTextContent("-9");
+    expect(detail.getByText("Итоговый показатель").nextElementSibling).toHaveTextContent("100");
+  });
+
+  it("keeps the calculation visible while AI loads and offers retry after failure", async () => {
+    const handlers = props({ analysisState: { status: "loading" } });
+    const view = render(<ResultsPanel {...handlers} />);
+    expect(within(screen.getByRole("region", { name: "Объяснение результатов" })).getByRole("status")).toHaveTextContent("Готовим AI-анализ");
+    expect(screen.getByRole("region", { name: "Astana Quality of Life Score" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Анализ выполняется…" })).toBeDisabled();
+    view.rerender(<ResultsPanel {...handlers} analysisState={{ status: "error", message: "Сервис ещё не подключён." }} />);
+    expect(screen.getByText(/Сервис ещё не подключён/)).toHaveTextContent("Расчёт сохранён");
+    expect(screen.getByRole("region", { name: "Astana Quality of Life Score" })).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: "Повторить AI-анализ" }));
+    expect(handlers.onRetryAnalysis).toHaveBeenCalledOnce();
+  });
+
+  it("renders analysis as text and links to facts with the exact supplied values", () => {
+    const result = resultFor();
+    const injection = '<img src="x" onerror="alert(1)"><script>alert(1)</script>';
+    const analysis = analysisFor(result, { summary: { text: injection, factIds: ["score:after", "budget:spent"] } });
+    const { container } = render(<ResultsPanel {...props({ result, analysisState: { status: "ready", analysis } })} />);
+    expect(screen.getByText(injection)).toBeVisible();
+    expect(container.querySelector("script, img")).toBeNull();
+    expect(screen.getByText("AI-анализ")).toBeVisible();
+    const scoreFact = screen.getByText("score:after").closest("div")!;
+    expect(scoreFact).toHaveTextContent("51,67 баллов");
+    const scoreReference = screen.getAllByRole("link").find(link => link.getAttribute("href") === `#${scoreFact.id}`);
+    expect(scoreReference).toBeDefined();
+    expect(scoreReference).toHaveTextContent("51,67 баллов");
+    expect(screen.getByRole("button", { name: "Повторить AI-анализ" })).toBeEnabled();
+  });
+
+  it.each(["scenarioId", "modelVersion", "datasetVersion", "factIds", "source"] as const)("rejects analysis with mismatched %s without hiding results", field => {
+    const result = resultFor();
+    const analysis = analysisFor(result);
+    if (field === "factIds") analysis.summary.factIds = ["unknown:fact"];
+    else if (field === "source") analysis.source = "fallback";
+    else analysis[field] = "different";
+    render(<ResultsPanel {...props({ result, analysisState: { status: "ready", analysis } })} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Объяснение не соответствует");
+    expect(screen.queryByText(analysis.summary.text)).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Astana Quality of Life Score" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Повторить AI-анализ" })).toBeVisible();
+    expect(createResultsExport(result, { status: "ready", analysis })).toMatchObject({ analysis: null, analysisUiStatus: "error", simulation: result });
+  });
+
+  it("labels received fallback honestly and exposes retry and replay callbacks", async () => {
+    const result = resultFor();
+    const analysis = analysisFor(result, { source: "fallback", status: "timeout" });
+    const handlers = props({ result, analysisState: { status: "ready", analysis } });
+    render(<ResultsPanel {...handlers} />);
+    expect(screen.getByText("Fallback · без AI")).toBeVisible();
+    expect(screen.getByText(/AI не ответил вовремя/)).toHaveTextContent("Это не ответ AI.");
+    await userEvent.click(screen.getByRole("button", { name: "Повторить AI-анализ" }));
+    await userEvent.click(screen.getByRole("button", { name: "Новая игра" }));
+    await userEvent.click(screen.getByRole("button", { name: "Редактировать решения" }));
+    expect(handlers.onRetryAnalysis).toHaveBeenCalledOnce();
+    expect(handlers.onReplay).toHaveBeenCalledOnce();
+    expect(handlers.onEdit).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Скачать JSON" })).toBeEnabled();
+  });
+});
