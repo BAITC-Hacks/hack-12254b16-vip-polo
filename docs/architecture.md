@@ -1,8 +1,8 @@
 # Архитектура
 
-Next.js App Router, TypeScript strict, CSS Modules и SVG. Ветка feat/integration-audit соединяет PR №2 (simulation), №3 (game), №4 (AI/results) и №5 (UI polish). Это интеграционный кандидат, не объединённая main. Фактические SHA и результаты проверки — в docs/integration.md.
+Next.js App Router, TypeScript strict, CSS Modules и SVG. Ветка feat/integration-audit соединяет PR №2 (simulation), №3 (game), №4 (AI/results) и №5 (UI polish и подробная карта). Интеграция опубликована в PR №6, её объединение в main разрешено Талгатом после проверки. Фактический статус merge, SHA и результаты проверки — в docs/integration.md.
 
-Серверная page.tsx получает независимую копию JSON через getGameData и передаёт её GameShell. Чистый simulation работает в браузере и на сервере. AI помечен server-only. CityMap остаётся реализацией PR №3: отдельное заявленное улучшение карты в опубликованных ветках не найдено.
+Серверная page.tsx получает независимую копию JSON через getGameData и передаёт её GameShell. Чистый simulation работает в браузере и на сервере. AI помечен server-only. CityMap включает обновление PR №5 (`a29ff8c`): SVG-кварталы, дороги, парки, реку, мосты и условные ориентиры. Декор не перехватывает выбор района мышью или клавиатурой и не влияет на расчёт. Стили изолированы в city-map.module.css, SVG clipPath и заголовок используют уникальный useId. Геоданные не загружаются: схема и ориентиры явно обозначены как придуманные.
 
 ```text
 JSON -> getGameData -> page -> GameShell
@@ -46,4 +46,4 @@ Vitest заменяет только marker server-only тестовым пус�
 
 Обычные тесты, сборка и e2e не требуют ключа. Playwright очищает AI_PROVIDER, AI_MODEL и AI_API_KEY в окружении своего production-сервера и проверяет fallback без сети провайдера. test:ai-live отдельно запускает tests/live-ai/vitest.config.ts, читает игнорируемый .env.local и требует реального source=ai/status=ready. Полученный fallback не засчитывается как успех.
 
-Полный браузерный CLI-прогон и live-AI пока не подтверждены для интеграционного кандидата. Не выводить готовность из наличия тестов или отчётов отдельных веток; актуальные результаты и ограничения указываются в docs/integration.md.
+Полный Chromium-прогон повторно проверяется на интегрированной версии с новой картой; live-AI пока не подтверждён. Не выводить готовность из наличия тестов или отчётов отдельных веток; актуальные результаты и ограничения указываются в docs/integration.md.
