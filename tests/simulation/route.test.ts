@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { POST } from "@/app/api/simulate/route";
 import * as simulation from "@/lib/simulation";
 import { simulationOutcomeSchema } from "@/shared/schema";
@@ -16,6 +16,10 @@ async function expectError(response: Response, status: number, code: string) {
 afterEach(() => vi.restoreAllMocks());
 
 describe("POST /api/simulate direct requests", () => {
+  it("exposes the required Request parameter for Next route type generation", async () => {
+    expectTypeOf<Parameters<typeof POST>[0]>().toEqualTypeOf<Request>();
+    await expectError(await POST(), 400, "INVALID_REQUEST");
+  });
   for (const key of ["A", "B", "C"] as const) it(`returns full final fixture ${key} from server data`, async () => {
     const response = await POST(request(scenarios[key].request));
     expect(response.status).toBe(200);

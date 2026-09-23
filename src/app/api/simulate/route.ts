@@ -42,6 +42,9 @@ async function readBody(request: Request): Promise<Outcome<unknown>> {
   }
 }
 
+// Keep the scaffold's direct no-argument call while exposing Next's required Request type.
+export function POST(): Promise<Response>;
+export function POST(request: Request): Promise<Response>;
 export async function POST(request?: Request): Promise<Response> {
   try {
     if (!request) return respond({ ok: false, error: invalidRequest });
