@@ -71,30 +71,3 @@
 
 .budgetProgress { width: 100%; height: 8px; accent-color: #466a40; margin: 0 0 12px; }
 .budgetCard .completeness { margin-top: 10px; }
-.calculationDetails { display: grid; gap: 16px; min-width: 0; }
-.cityDetails, .trace { padding: 18px; border: 1px solid #d3ddc8; border-radius: 10px; min-width: 0; }
-.cityDetails > summary, .trace > summary { cursor: pointer; font-weight: 600; }
-.trace > summary > span { display: block; color: #526657; font-size: .8rem; font-weight: 400; margin: 6px 0 0 20px; }
-.trace[open] > p, .cityDetails[open] > p { margin: 16px 0; }
-.cityMetrics { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; }
-.cityMetrics caption { text-align: left; margin: 16px 0; font-weight: 600; }
-.cityMetrics th, .cityMetrics td { padding: 10px 5px; border-bottom: 1px solid #dce1d4; text-align: right; }
-.cityMetrics th:first-child { text-align: left; overflow-wrap: anywhere; }
-.cityMetrics tbody th { font-weight: 400; }
-.traceDistrict { margin-top: 22px; }
-.traceMetric { background: #f3f5ed; border-radius: 4px; padding: 12px 16px; margin-top: 8px; }
-.traceMetric > summary { cursor: pointer; font-size: .85rem; }
-.traceMetric > summary strong { margin-left: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.traceTotals { display: grid; gap: 7px; font-size: .8rem; }
-.traceTotals > div { display: flex; justify-content: space-between; gap: 15px; }
-.traceTotals dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
-.contributions { padding: 0; list-style: none; }
-.contributions li { border-left: 2px solid #a7b991; padding: 8px 12px; margin: 12px 0; }
-.contributions li > div { display: flex; justify-content: space-between; gap: 14px; font-size: .85rem; }
-.contributions li > p { font-size: .76rem; color: #526657; margin-top: 7px; }
-.contributions code { font-size: .7rem; overflow-wrap: anywhere; }
-@media (max-width: 700px) {
-  .cityDetails, .trace { padding: 12px; }
-  .traceMetric { padding: 12px 10px; }
-  .cityMetrics { font-size: .75rem; }
-}

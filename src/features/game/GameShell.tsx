@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GameShellProps } from "@/shared/ports";
+import type { Direction } from "@/shared/types";
 import { simulateScenario } from "@/lib/simulation";
 import { ResultsPanel } from "@/features/results";
 import { CityMap } from "./CityMap";
 import { InitiativePicker } from "./InitiativePicker";
+import { ScenarioTrace } from "./ScenarioTrace";
 import { directionLabels, formatNumber } from "./labels";
 import { useGame } from "./useGame";
 import styles from "./game.module.css";
@@ -20,6 +22,7 @@ function GameSession({ data }: GameShellProps) {
   const [districtId, setDistrictId] = useState(data.districts[0]?.id ?? "");
   const [direction, setDirection] = useState(data.config.directions[0]);
   const [briefing, setBriefing] = useState(true);
+  const directionButtons = useRef<Partial<Record<Direction, HTMLButtonElement | null>>>({});
   const resultHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (game.result) resultHeading.current?.focus();
@@ -55,13 +58,13 @@ function GameSession({ data }: GameShellProps) {
       <CityMap districts={data.districts} selectedDistrictId={districtId} preview={game.preview} onSelectDistrict={setDistrictId} />
       <section className={styles.decisionPanel} aria-labelledby="decisions-title">
         <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>02 / Решения</p><h2 id="decisions-title">План изменений</h2></div><span className={styles.tag}>{district?.name ?? "Выберите район"}</span></div>
-        <div role="group" aria-label="Направления" className={styles.directions}>{data.config.directions.map((item, index) => <button type="button" key={item} aria-pressed={item === direction} onClick={() => setDirection(item)}><span>{game.decisions.some(d => d.direction === item) ? "✓" : `0${index + 1}`}</span>{directionLabels[item]}</button>)}</div>
+        <div role="group" aria-label="Направления" className={styles.directions}>{data.config.directions.map((item, index) => <button type="button" key={item} ref={node => { directionButtons.current[item] = node; }} aria-pressed={item === direction} onClick={() => setDirection(item)}><span>{game.decisions.some(d => d.direction === item) ? "✓" : `0${index + 1}`}</span>{directionLabels[item]}</button>)}</div>
         {selected && <p className={styles.selectionNote}>Текущее решение: {data.districts.find(d => d.id === selected.districtId)?.name}. {selected.districtId !== districtId && "Новый выбор перенесёт это решение в выбранный район."}</p>}
         {district && <InitiativePicker initiatives={data.initiatives} direction={direction} districtId={districtId}
           selectedInitiativeId={selected?.districtId === districtId ? selected.initiativeId : null} remainingBudget={game.preview?.budget.remaining ?? 0}
           candidates={candidates} replacing={!!selected}
           onSelect={initiativeId => game.select({ direction, districtId, initiativeId })} onRemove={() => game.remove(direction)} />}
-        {selected && nextDirection && <button className={styles.nextButton} onClick={() => setDirection(nextDirection)}>Далее: {directionLabels[nextDirection]} <span aria-hidden="true">→</span></button>}
+        {selected && nextDirection && <button className={styles.nextButton} onClick={() => { setDirection(nextDirection); directionButtons.current[nextDirection]?.focus(); }}>Далее: {directionLabels[nextDirection]} <span aria-hidden="true">→</span></button>}
         {game.error && <p className={styles.error} role="alert">{game.error}</p>}
         <section className={styles.plan} aria-label="Ваши решения"><h3>В вашем плане <span>{game.decisions.length} / {data.config.directions.length}</span></h3>
           {!game.decisions.length ? <p className={styles.small}>Пока пусто. Начните с одного мероприятия.</p> : <ul>{data.config.directions.flatMap(item => {
@@ -77,6 +80,7 @@ function GameSession({ data }: GameShellProps) {
     {game.result && <section className={styles.resultArea} aria-label="Итог сценария">
       <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>03 / Последствия</p><h2 ref={resultHeading} tabIndex={-1}>Сценарий рассчитан</h2></div></div>
       <ResultsPanel result={game.result} analysisState={game.analysisState} onRetryAnalysis={() => void game.retryAnalysis()} onReplay={game.replay} onEdit={game.edit} />
+      <ScenarioTrace result={game.result} data={data} />
     </section>}
     <footer className={styles.footer}><strong>Город — условный. Выбор — ваш.</strong><p>Данные синтетические. Районы не соответствуют административной карте Астаны. Score — учебный показатель, а не официальная оценка города или рекомендация акимату.</p><span>{data.config.modelVersion} · {data.config.datasetVersion}</span></footer>
   </div>;

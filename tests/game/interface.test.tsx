@@ -97,3 +97,14 @@ it("advances to the next undecided direction and edits a plan item in its origin
   expect(screen.getByRole("button", { name: "Южный район" })).toHaveAttribute("aria-pressed", "true");
   expect(screen.getByRole("button", { name: `Выбрано: ${title("transport-basic")}` })).toHaveAttribute("aria-pressed", "true");
 });
+it("preserves keyboard focus when the next-direction button disappears", async () => {
+  const user = userEvent.setup(); render(<GameShell data={data} />);
+  await user.click(screen.getByRole("button", { name: `Выбрать: ${title("transport-basic")}` }));
+  const next = screen.getByRole("button", { name: /Далее: Озеленение/ });
+  next.focus();
+  await user.keyboard("{Enter}");
+  expect(next).not.toBeInTheDocument();
+  const direction = within(screen.getByRole("group", { name: "Направления" })).getByRole("button", { name: /Озеленение/ });
+  expect(direction).toHaveAttribute("aria-pressed", "true");
+  expect(direction).toHaveFocus();
+});

@@ -3,6 +3,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResultsPanel } from "@/features/results";
+import { ScenarioTrace } from "@/features/game/ScenarioTrace";
 import { createResultsExport } from "@/features/results/export";
 import { getGameData } from "@/lib/simulation";
 import type { ResultsPanelProps } from "@/shared/ports";
@@ -21,6 +22,12 @@ function props(overrides: Partial<ResultsPanelProps> = {}): ResultsPanelProps {
   return { result: resultFor(), analysisState: { status: "idle" }, onRetryAnalysis: vi.fn(), onReplay: vi.fn(), onEdit: vi.fn(), ...overrides };
 }
 
+// The integrated page composes owner 3's panel with owner 1's trace view.
+function renderWithTrace(overrides: Partial<ResultsPanelProps> = {}) {
+  const current = props(overrides);
+  return render(<><ResultsPanel {...current} /><ScenarioTrace result={current.result} data={getGameData()} /></>);
+}
+
 function analysisFor(result: SimulationResult, overrides: Partial<AIAnalysis> = {}): AIAnalysis {
   return {
     scenarioId: result.scenarioId, modelVersion: result.modelVersion, datasetVersion: result.datasetVersion,
@@ -33,13 +40,12 @@ function analysisFor(result: SimulationResult, overrides: Partial<AIAnalysis> = 
 describe("ResultsPanel", () => {
   it.each([[
     "A", "51,67", "50", "+1,67",
-  ], ["B", "52,53", "70", "+2,53"], ["C", "53,33", "100", "+3,33"]] as const)("shows the supplied %s score, budget and all district metrics", async (name, score, spent, delta) => {
-    render(<ResultsPanel {...props({ result: resultFor(name) })} />);
+  ], ["B", "52,53", "70", "+2,53"], ["C", "53,33", "100", "+3,33"]] as const)("shows the supplied %s score, budget and all district metrics", (name, score, spent, delta) => {
+    renderWithTrace({ result: resultFor(name) });
     const scorePanel = within(screen.getByRole("region", { name: "Astana Quality of Life Score" }));
     expect(scorePanel.getByText(score, { exact: false })).toBeVisible();
     expect(scorePanel.getByText(delta)).toBeVisible();
     expect(screen.getByRole("progressbar", { name: "Использованный бюджет" })).toHaveAttribute("value", spent);
-    await userEvent.click(screen.getByText("Показатели города целиком"));
     expect(screen.getByRole("table", { name: "Город целиком" })).toBeVisible();
     for (const district of getGameData().districts) {
       expect(within(screen.getByRole("table", { name: `${district.name} район` })).getAllByRole("row")).toHaveLength(6);
@@ -85,7 +91,7 @@ describe("ResultsPanel", () => {
 
   it("explains every rule, including both opposing contributions, raw sum and clamp", async () => {
     const result = resultFor("B");
-    render(<ResultsPanel {...props({ result })} />);
+    renderWithTrace({ result });
     const user = userEvent.setup();
     await user.click(screen.getByText("Откуда взялись числа"));
     const north = within(screen.getByRole("region", { name: "Разбор: Северный" }));
@@ -113,7 +119,7 @@ describe("ResultsPanel", () => {
     const result = resultFor();
     const entry = result.trace.find(item => item.districtId === "north" && item.metric === "transport")!;
     entry.rawAfter = 109; entry.clampAdjustment = -9; entry.after = 100;
-    render(<ResultsPanel {...props({ result })} />);
+    renderWithTrace({ result });
     await userEvent.click(screen.getByText("Откуда взялись числа"));
     const north = within(screen.getByRole("region", { name: "Разбор: Северный" }));
     await userEvent.click(north.getByText("Транспорт"));

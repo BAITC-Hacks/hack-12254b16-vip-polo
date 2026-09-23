@@ -10,6 +10,7 @@ import type { AIAnalysis, SimulationResult } from "@/shared/types";
 import { scenarios } from "../fixtures";
 
 vi.mock("@/lib/simulation", async importOriginal => ({ ...await importOriginal<typeof import("@/lib/simulation")>(), simulateScenario: vi.fn() }));
+// The integrated branch exercises the actual ResultsPanel and its callbacks.
 const data = getGameData();
 const title = (id: string) => data.initiatives.find(item => item.id === id)!.title;
 const simulate = vi.mocked(simulateScenario);

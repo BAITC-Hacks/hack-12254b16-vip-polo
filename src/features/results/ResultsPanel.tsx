@@ -7,7 +7,6 @@ import type { ResultsPanelProps } from "@/shared/ports";
 import type { AnalysisPoint, Direction, Fact } from "@/shared/types";
 import { createResultsExport, matchingAnalysis } from "./export";
 import styles from "./results.module.css";
-import { SimulationDetails } from "./SimulationDetails";
 
 const metricLabels: Record<Direction, string> = {
   transport: "Транспорт", greenery: "Озеленение", social: "Социальная среда",
@@ -139,8 +138,6 @@ export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay,
       </>}
       <button type="button" className={styles.secondaryButton} onClick={onRetryAnalysis} disabled={loading}>{loading ? "Анализ выполняется…" : analysisState.status === "idle" ? "Запустить AI-анализ" : "Повторить AI-анализ"}</button>
     </section>
-
-    <SimulationDetails result={result} />
 
     <section aria-labelledby={`${id}-facts`}>
       <h3 id={`${id}-facts`}>Факты расчёта</h3>
