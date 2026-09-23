@@ -1,0 +1,35 @@
+[
+  {
+    "id": "north",
+    "name": "Северный",
+    "baseline": {
+      "transport": 40,
+      "greenery": 65,
+      "social": 45,
+      "safety": 55,
+      "service": 45
+    }
+  },
+  {
+    "id": "center",
+    "name": "Центральный",
+    "baseline": {
+      "transport": 65,
+      "greenery": 35,
+      "social": 60,
+      "safety": 40,
+      "service": 50
+    }
+  },
+  {
+    "id": "south",
+    "name": "Южный",
+    "baseline": {
+      "transport": 45,
+      "greenery": 50,
+      "social": 45,
+      "safety": 55,
+      "service": 55
+    }
+  }
+]

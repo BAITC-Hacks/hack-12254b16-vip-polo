@@ -1,0 +1,45 @@
+{
+  "request": {
+    "modelVersion": "model-v1",
+    "datasetVersion": "synthetic-v1",
+    "decisions": [
+      {
+        "direction": "transport",
+        "districtId": "north",
+        "initiativeId": "transport-premium"
+      },
+      {
+        "direction": "greenery",
+        "districtId": "north",
+        "initiativeId": "greenery-premium"
+      },
+      {
+        "direction": "social",
+        "districtId": "north",
+        "initiativeId": "social-premium"
+      },
+      {
+        "direction": "safety",
+        "districtId": "north",
+        "initiativeId": "safety-premium"
+      },
+      {
+        "direction": "service",
+        "districtId": "north",
+        "initiativeId": "service-premium"
+      }
+    ]
+  },
+  "mode": "final",
+  "expected": {
+    "ok": false,
+    "error": {
+      "code": "BUDGET_EXCEEDED",
+      "message": "Стоимость сценария превышает бюджет",
+      "details": {
+        "budget": 100,
+        "spent": 150
+      }
+    }
+  }
+}

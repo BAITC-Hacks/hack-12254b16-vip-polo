@@ -1,0 +1,392 @@
+[
+  {
+    "id": "transport-basic",
+    "direction": "transport",
+    "title": "Автобусное обслуживание — базовый масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 10,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "transport-basic:gain",
+        "metric": "transport",
+        "delta": 6,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "transport-basic:tradeoff",
+        "metric": "greenery",
+        "delta": -1,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "transport-standard",
+    "direction": "transport",
+    "title": "Автобусное обслуживание — стандартный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 20,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "transport-standard:gain",
+        "metric": "transport",
+        "delta": 12,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "transport-standard:tradeoff",
+        "metric": "greenery",
+        "delta": -2,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "transport-premium",
+    "direction": "transport",
+    "title": "Автобусное обслуживание — расширенный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 30,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "transport-premium:gain",
+        "metric": "transport",
+        "delta": 21,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "transport-premium:tradeoff",
+        "metric": "greenery",
+        "delta": -3,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "greenery-basic",
+    "direction": "greenery",
+    "title": "Озеленение дворов — базовый масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 10,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "greenery-basic:gain",
+        "metric": "greenery",
+        "delta": 6,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "greenery-basic:tradeoff",
+        "metric": "social",
+        "delta": -1,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "greenery-standard",
+    "direction": "greenery",
+    "title": "Озеленение дворов — стандартный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 20,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "greenery-standard:gain",
+        "metric": "greenery",
+        "delta": 12,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "greenery-standard:tradeoff",
+        "metric": "social",
+        "delta": -2,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "greenery-premium",
+    "direction": "greenery",
+    "title": "Озеленение дворов — расширенный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 30,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "greenery-premium:gain",
+        "metric": "greenery",
+        "delta": 21,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "greenery-premium:tradeoff",
+        "metric": "social",
+        "delta": -3,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "social-basic",
+    "direction": "social",
+    "title": "Социальные услуги — базовый масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 10,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "social-basic:gain",
+        "metric": "social",
+        "delta": 6,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "social-basic:tradeoff",
+        "metric": "safety",
+        "delta": -1,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "social-standard",
+    "direction": "social",
+    "title": "Социальные услуги — стандартный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 20,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "social-standard:gain",
+        "metric": "social",
+        "delta": 12,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "social-standard:tradeoff",
+        "metric": "safety",
+        "delta": -2,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "social-premium",
+    "direction": "social",
+    "title": "Социальные услуги — расширенный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 30,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "social-premium:gain",
+        "metric": "social",
+        "delta": 21,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "social-premium:tradeoff",
+        "metric": "safety",
+        "delta": -3,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "safety-basic",
+    "direction": "safety",
+    "title": "Освещение пешеходных зон — базовый масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 10,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "safety-basic:gain",
+        "metric": "safety",
+        "delta": 6,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "safety-basic:tradeoff",
+        "metric": "service",
+        "delta": -1,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "safety-standard",
+    "direction": "safety",
+    "title": "Освещение пешеходных зон — стандартный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 20,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "safety-standard:gain",
+        "metric": "safety",
+        "delta": 12,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "safety-standard:tradeoff",
+        "metric": "service",
+        "delta": -2,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "safety-premium",
+    "direction": "safety",
+    "title": "Освещение пешеходных зон — расширенный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 30,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "safety-premium:gain",
+        "metric": "safety",
+        "delta": 21,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "safety-premium:tradeoff",
+        "metric": "service",
+        "delta": -3,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "service-basic",
+    "direction": "service",
+    "title": "Обработка обращений жителей — базовый масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 10,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "service-basic:gain",
+        "metric": "service",
+        "delta": 6,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "service-basic:tradeoff",
+        "metric": "transport",
+        "delta": -1,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "service-standard",
+    "direction": "service",
+    "title": "Обработка обращений жителей — стандартный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 20,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "service-standard:gain",
+        "metric": "service",
+        "delta": 12,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "service-standard:tradeoff",
+        "metric": "transport",
+        "delta": -2,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  },
+  {
+    "id": "service-premium",
+    "direction": "service",
+    "title": "Обработка обращений жителей — расширенный масштаб",
+    "description": "Стартовое мероприятие учебной модели. Название и описание уточняет участник 2 без изменения согласованных чисел.",
+    "cost": 30,
+    "eligibleDistrictIds": [
+      "north",
+      "center",
+      "south"
+    ],
+    "effects": [
+      {
+        "ruleId": "service-premium:gain",
+        "metric": "service",
+        "delta": 21,
+        "explanation": "Условное улучшение основного индекса в выбранном районе."
+      },
+      {
+        "ruleId": "service-premium:tradeoff",
+        "metric": "transport",
+        "delta": -3,
+        "explanation": "Условный игровой компромисс; не утверждение о реальной причинности."
+      }
+    ]
+  }
+]
