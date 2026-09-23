@@ -1,0 +1,30 @@
+.panel { min-width: 0; margin-top: 32px; }
+.sectionHeading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sectionHeading h3 { margin: 0; }
+.sectionHeading > span { color: #5e685b; font-size: .73rem; }
+.note { color: #5e685b; font-size: .8rem; margin: 12px 0 18px; }
+.cityMetrics { background: #f1f3e9; border-radius: 6px; padding: 18px 22px; margin-bottom: 16px; }
+.metrics { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .78rem; table-layout: fixed; }
+.metrics caption { text-align: left; font-size: .95rem; font-weight: 600; padding-bottom: 14px; }
+.metrics th, .metrics td { padding: 10px 5px; border-bottom: 1px solid #dce1d4; text-align: right; overflow-wrap: anywhere; }
+.metrics tr:last-child th, .metrics tr:last-child td { border-bottom: 0; }
+.metrics th:first-child { width: 55%; text-align: left; font-weight: 400; }
+.metrics thead th { font-weight: 400; color: #5e685b; font-size: .72rem; }
+.decrease { color: #974722; }
+.trace { margin: 28px 0; padding: 22px; border: 1px solid #d3ddc8; border-radius: 6px; }
+.trace > summary { cursor: pointer; }
+.trace > summary > span { display: block; color: #5e685b; font-size: .78rem; margin: 6px 0 0 20px; }
+.traceDistrict { margin: 22px 0 0; }
+.traceDistrict h4 { margin-bottom: 10px; font-size: .95rem; }
+.traceMetric { background: #f3f5ed; border-radius: 4px; padding: 12px 16px; margin: 7px 0; }
+.traceMetric > summary { cursor: pointer; font-size: .85rem; }
+.traceMetric > summary strong { float: right; margin-left: 12px; }
+.traceTotals { display: grid; gap: 7px; font-size: .8rem; }
+.traceTotals > div { display: flex; justify-content: space-between; gap: 15px; }
+.traceTotals dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.contributions { padding: 0; list-style: none; }
+.contributions li { border-left: 2px solid #a7b991; padding: 8px 12px; margin: 12px 0; overflow-wrap: anywhere; }
+.contributions li > div { display: flex; justify-content: space-between; gap: 14px; font-size: .85rem; }
+.contributions li > p { font-size: .76rem; color: #5e685b; margin: 7px 0; }
+.contributions code { font-size: .7rem; overflow-wrap: anywhere; }
+@media (max-width: 640px) { .trace { padding: 16px; } .traceMetric { padding: 12px 10px; } .traceMetric > summary { font-size: .77rem; } .traceMetric > summary strong { margin-left: 6px; } .metrics { font-size: .74rem; } }

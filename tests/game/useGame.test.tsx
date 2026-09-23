@@ -7,9 +7,22 @@ import { useGame } from "@/features/game/useGame";
 import { GameShell } from "@/features/game";
 import { makeScenarioId } from "@/shared/scenario-id";
 import type { AIAnalysis, SimulationResult } from "@/shared/types";
+import type { ResultsPanelProps } from "@/shared/ports";
 import { scenarios } from "../fixtures";
 
 vi.mock("@/lib/simulation", async importOriginal => ({ ...await importOriginal<typeof import("@/lib/simulation")>(), simulateScenario: vi.fn() }));
+// Exercise only the agreed result-panel port; its implementation has independent tests.
+vi.mock("@/features/results", () => ({ ResultsPanel: function ResultsPanelPort({ result, analysisState, onEdit, onRetryAnalysis, onReplay }: ResultsPanelProps) {
+  return <section aria-label="Результаты">
+    <p>Полученный Score: {result.score.after}</p>
+    {analysisState.status === "loading" && <p role="status">Объяснение загружается</p>}
+    {analysisState.status === "error" && <p role="alert">AI-анализ сейчас недоступен. {analysisState.message}</p>}
+    {analysisState.status === "ready" && <p>{analysisState.analysis.source === "fallback" ? "Резервное объяснение · AI недоступен" : "Объяснение AI"}</p>}
+    <button onClick={onRetryAnalysis}>Повторить AI-анализ</button>
+    <button onClick={onEdit}>Редактировать решения</button>
+    <button onClick={onReplay}>Новый сценарий</button>
+  </section>;
+} }));
 const data = getGameData();
 const title = (id: string) => data.initiatives.find(item => item.id === id)!.title;
 const simulate = vi.mocked(simulateScenario);
