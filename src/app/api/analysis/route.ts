@@ -72,6 +72,9 @@ async function readBody(request: Request): Promise<Outcome<unknown>> {
   }
 }
 
+// Next's generated route checks require Request; keep the scaffold's direct call safe.
+export function POST(): Promise<Response>;
+export function POST(request: Request): Promise<Response>;
 export async function POST(request?: Request): Promise<Response> {
   try {
     if (!request) return respond(failure("INVALID_REQUEST"));

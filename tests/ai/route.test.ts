@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { POST } from "@/app/api/analysis/route";
 import { analyzeScenario } from "@/lib/ai";
 import { analysisOutcomeSchema } from "@/shared/schema";
@@ -64,6 +64,12 @@ beforeEach(() => {
 });
 
 describe("POST /api/analysis", () => {
+  it("exposes Request for Next's generated types while safely handling a direct empty call", async () => {
+    expectTypeOf<Parameters<typeof POST>[0]>().toEqualTypeOf<Request>();
+    await expectError(await POST(), 400, "INVALID_REQUEST");
+    expect(analyze).not.toHaveBeenCalled();
+  });
+
   it("returns the shared Outcome and passes only the validated original scenario", async () => {
     const response = await POST(jsonRequest(scenarios.A.request));
     expect(response.status).toBe(200);

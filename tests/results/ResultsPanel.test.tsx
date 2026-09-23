@@ -120,7 +120,7 @@ describe("ResultsPanel", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("supports keyboard activation and labelled busy state", async () => {
+  it("supports keyboard retry and announces loading without a busy ancestor suppressing the status", async () => {
     const user = userEvent.setup();
     const { props, rerender } = mount();
     await user.tab();
@@ -128,7 +128,11 @@ describe("ResultsPanel", () => {
     await user.keyboard("{Enter}");
     expect(props.onRetryAnalysis).toHaveBeenCalledOnce();
     rerender(<ResultsPanel {...props} analysisState={{ status: "loading" }} />);
-    expect(screen.getByRole("region", { name: "Объяснение результатов" })).toHaveAttribute("aria-busy", "true");
+    const loadingStatus = within(screen.getByRole("region", { name: "Объяснение результатов" })).getByRole("status");
+    expect(loadingStatus).toHaveTextContent("Готовим AI-анализ…");
+    expect(loadingStatus).toHaveAttribute("aria-live", "polite");
+    expect(loadingStatus.closest('[aria-busy="true"]')).toBeNull();
+    expect(screen.getByRole("button", { name: "Анализ выполняется…" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Анализ выполняется…" }));
     expect(props.onRetryAnalysis).toHaveBeenCalledOnce();
   });

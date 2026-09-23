@@ -109,7 +109,7 @@ export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay,
       </div>)}</div>
     </section>
 
-    <section className={styles.analysis} aria-labelledby={`${id}-analysis`} aria-busy={loading}>
+    <section className={styles.analysis} aria-labelledby={`${id}-analysis`}>
       <div className={styles.analysisHeader}><h3 id={`${id}-analysis`}>Объяснение результатов</h3>
         {analysis && <span className={styles.badge}>{analysis.source === "ai" ? "AI-анализ" : "Fallback · без AI"}</span>}
       </div>

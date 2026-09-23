@@ -7,12 +7,14 @@
 в модуле были только переданные участнику 3 заглушки. Родительских AGENTS.md нет;
 действующие AGENTS.md, contract.md целиком, ownership, architecture, toolchain прочитаны.
 
-На проверке 23 сентября 2026:
+На повторной проверке 23 сентября 2026:
 
 - [PR #2](https://github.com/BAITC-Hacks/hack-12254b16-vip-polo/pull/2),
-  `feat/simulation`, `056c43031ee0c86d969dd6c12f68a8c147e8b636`: open/draft, не merged.
+  `feat/simulation`, `eb5418b306381f30d4b2a8fe9370eae56551f7c4`: open/draft, не merged.
 - [PR #3](https://github.com/BAITC-Hacks/hack-12254b16-vip-polo/pull/3),
   `feat/game-ui`, `5fd66331fe20e51f8ecd9fb3d72ecc942d7ed9c1`: open/draft, не merged.
+- [PR #4](https://github.com/BAITC-Hacks/hack-12254b16-vip-polo/pull/4): существующий
+  AI/results PR продолжен в той же ветке, новый модуль/PR не создавался.
 
 AI и панель реализованы, но полное игровое соединение пока не проверено: main содержит
 заглушки модели и GameShell. Допустимый запрос анализа честно получает ошибку модели
@@ -22,6 +24,19 @@ NOT_IMPLEMENTED/501; fallback с выдуманным расчётом прил�
 Настоящий AI **не проверен**. В этой сессии нет `.env.local`, AI_API_KEY, AI_MODEL или
 AI_PROVIDER. Доступ к API-модели не следует из доступа к Codex/GitHub. Реализован один
 адаптер OpenAI Responses API; модель без подтверждённого доступа не выбрана по умолчанию.
+
+При продолжении выявлена и исправлена ошибка типов `/api/analysis` после
+`pnpm dev --webpack`: `.next/dev/types/app/api/analysis/route.ts` отклонял
+`Request | undefined`. Перегрузки POST()/POST(Request) сохраняют прямой вызов
+старого теста без аргумента (безопасный HTTP 400) и дают Next требуемый Request.
+Регрессия закреплена expectTypeOf и проверкой ответа без вызова AI; typecheck
+выполнен с реально сгенерированными dev-типами. Это аналог исправления PR #2
+eb5418b; числовая модель и её facts в новом коммите не менялись.
+
+В ResultsPanel сообщение загрузки вынесено из влияния `aria-busy`: снят атрибут
+с внешней секции, чтобы live-status не откладывался скринридером до конца запроса.
+Тест проверяет отсутствие busy-предка, текст loading, клавиатурный callback и
+отключённую кнопку повтора. Настоящий скринридер не запускался.
 
 ## Реализация
 
@@ -121,9 +136,9 @@ Git и GitHub-коннектор доступны, gh отсутствует. У
 `pnpm install --frozen-lockfile` — успешно; package.json/lockfile неизменны.
 
 - `pnpm lint` — успешно.
-- `pnpm typecheck` — успешно.
-- `pnpm test tests/ai tests/results` — **123/123** (70 AI, 37 route, 16 panel).
-- Полный `pnpm test` — **133 passed, 1 failed**: устаревший тест каркаса падает на ожидании исключения
+- `pnpm typecheck` — успешно, в том числе с типами после `next dev --webpack`.
+- Модульные tests/ai и tests/results — **124/124** (70 AI, 38 route, 16 panel).
+- Полный `pnpm test` — **134 passed, 1 failed**: устаревший тест каркаса падает на ожидании исключения
   ScaffoldNotImplementedError от уже реализованного buildAnalysisFacts.
   Общий тест сохранён, не отключён.
 - `pnpm build` — успешно, реальные Next production-маршруты собраны.
@@ -164,7 +179,10 @@ HTTP/сеть, стандартный/настраиваемый таймаут 
 4. PR #3 `GameShell.tsx:62–64`: удалить внешние повторяющиеся кнопки
    «Редактировать решения»/«Повторить AI-анализ» и дублирующий live-status вокруг
    ResultsPanel. Сохранить useGame и props/callbacks. Иначе будут дубли UI и
-   неоднозначные getByRole в tests/game/useGame.test.tsx.
+   неоднозначные getByRole/getByText в tests/game/useGame.test.tsx (167–171).
+   Вместе с удалением обвязки заменить ожидание её текста «Доступно локальное
+   объяснение без AI.» на `expect(await screen.findByText("Fallback · без AI")).toBeVisible()`
+   и `expect(screen.getByText(/Это не ответ AI/)).toBeVisible()`.
 5. PR #2 переименовал инициативы, PR #3 тесты всё ещё ищут «базовый масштаб» и
    «расширенный масштаб». Обновить tests/game/interface.test.tsx (28/34/37–46),
    useGame.test.tsx (162/180), tests/e2e/scaffold.spec.ts (13/17/19): unit-селекторы
