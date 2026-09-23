@@ -1,0 +1,578 @@
+{
+  "request": {
+    "modelVersion": "model-v1",
+    "datasetVersion": "synthetic-v1",
+    "decisions": [
+      {
+        "direction": "transport",
+        "districtId": "north",
+        "initiativeId": "transport-premium"
+      },
+      {
+        "direction": "greenery",
+        "districtId": "north",
+        "initiativeId": "greenery-basic"
+      },
+      {
+        "direction": "social",
+        "districtId": "north",
+        "initiativeId": "social-basic"
+      },
+      {
+        "direction": "safety",
+        "districtId": "north",
+        "initiativeId": "safety-basic"
+      },
+      {
+        "direction": "service",
+        "districtId": "north",
+        "initiativeId": "service-basic"
+      }
+    ]
+  },
+  "mode": "final",
+  "expected": {
+    "ok": true,
+    "data": {
+      "scenarioId": "[\"model-v1\",\"synthetic-v1\",[[\"transport\",\"north\",\"transport-premium\"],[\"greenery\",\"north\",\"greenery-basic\"],[\"social\",\"north\",\"social-basic\"],[\"safety\",\"north\",\"safety-basic\"],[\"service\",\"north\",\"service-basic\"]]]",
+      "modelVersion": "model-v1",
+      "datasetVersion": "synthetic-v1",
+      "complete": true,
+      "decisions": [
+        {
+          "direction": "transport",
+          "districtId": "north",
+          "initiativeId": "transport-premium"
+        },
+        {
+          "direction": "greenery",
+          "districtId": "north",
+          "initiativeId": "greenery-basic"
+        },
+        {
+          "direction": "social",
+          "districtId": "north",
+          "initiativeId": "social-basic"
+        },
+        {
+          "direction": "safety",
+          "districtId": "north",
+          "initiativeId": "safety-basic"
+        },
+        {
+          "direction": "service",
+          "districtId": "north",
+          "initiativeId": "service-basic"
+        }
+      ],
+      "budget": {
+        "initial": 100,
+        "spent": 70,
+        "remaining": 30
+      },
+      "districts": [
+        {
+          "districtId": "north",
+          "before": {
+            "transport": 40,
+            "greenery": 65,
+            "social": 45,
+            "safety": 55,
+            "service": 45
+          },
+          "after": {
+            "transport": 60,
+            "greenery": 68,
+            "social": 50,
+            "safety": 60,
+            "service": 50
+          }
+        },
+        {
+          "districtId": "center",
+          "before": {
+            "transport": 65,
+            "greenery": 35,
+            "social": 60,
+            "safety": 40,
+            "service": 50
+          },
+          "after": {
+            "transport": 65,
+            "greenery": 35,
+            "social": 60,
+            "safety": 40,
+            "service": 50
+          }
+        },
+        {
+          "districtId": "south",
+          "before": {
+            "transport": 45,
+            "greenery": 50,
+            "social": 45,
+            "safety": 55,
+            "service": 55
+          },
+          "after": {
+            "transport": 45,
+            "greenery": 50,
+            "social": 45,
+            "safety": 55,
+            "service": 55
+          }
+        }
+      ],
+      "city": {
+        "before": {
+          "transport": 50,
+          "greenery": 50,
+          "social": 50,
+          "safety": 50,
+          "service": 50
+        },
+        "after": {
+          "transport": 56.666666666666664,
+          "greenery": 51,
+          "social": 51.666666666666664,
+          "safety": 51.666666666666664,
+          "service": 51.666666666666664
+        }
+      },
+      "score": {
+        "before": 50,
+        "after": 52.53,
+        "delta": 2.53
+      },
+      "trace": [
+        {
+          "districtId": "north",
+          "metric": "transport",
+          "baseline": 40,
+          "contributions": [
+            {
+              "initiativeId": "transport-premium",
+              "ruleId": "transport-premium:gain",
+              "delta": 21
+            },
+            {
+              "initiativeId": "service-basic",
+              "ruleId": "service-basic:tradeoff",
+              "delta": -1
+            }
+          ],
+          "rawAfter": 60,
+          "after": 60,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "north",
+          "metric": "greenery",
+          "baseline": 65,
+          "contributions": [
+            {
+              "initiativeId": "transport-premium",
+              "ruleId": "transport-premium:tradeoff",
+              "delta": -3
+            },
+            {
+              "initiativeId": "greenery-basic",
+              "ruleId": "greenery-basic:gain",
+              "delta": 6
+            }
+          ],
+          "rawAfter": 68,
+          "after": 68,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "north",
+          "metric": "social",
+          "baseline": 45,
+          "contributions": [
+            {
+              "initiativeId": "greenery-basic",
+              "ruleId": "greenery-basic:tradeoff",
+              "delta": -1
+            },
+            {
+              "initiativeId": "social-basic",
+              "ruleId": "social-basic:gain",
+              "delta": 6
+            }
+          ],
+          "rawAfter": 50,
+          "after": 50,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "north",
+          "metric": "safety",
+          "baseline": 55,
+          "contributions": [
+            {
+              "initiativeId": "social-basic",
+              "ruleId": "social-basic:tradeoff",
+              "delta": -1
+            },
+            {
+              "initiativeId": "safety-basic",
+              "ruleId": "safety-basic:gain",
+              "delta": 6
+            }
+          ],
+          "rawAfter": 60,
+          "after": 60,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "north",
+          "metric": "service",
+          "baseline": 45,
+          "contributions": [
+            {
+              "initiativeId": "safety-basic",
+              "ruleId": "safety-basic:tradeoff",
+              "delta": -1
+            },
+            {
+              "initiativeId": "service-basic",
+              "ruleId": "service-basic:gain",
+              "delta": 6
+            }
+          ],
+          "rawAfter": 50,
+          "after": 50,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "center",
+          "metric": "transport",
+          "baseline": 65,
+          "contributions": [],
+          "rawAfter": 65,
+          "after": 65,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "center",
+          "metric": "greenery",
+          "baseline": 35,
+          "contributions": [],
+          "rawAfter": 35,
+          "after": 35,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "center",
+          "metric": "social",
+          "baseline": 60,
+          "contributions": [],
+          "rawAfter": 60,
+          "after": 60,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "center",
+          "metric": "safety",
+          "baseline": 40,
+          "contributions": [],
+          "rawAfter": 40,
+          "after": 40,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "center",
+          "metric": "service",
+          "baseline": 50,
+          "contributions": [],
+          "rawAfter": 50,
+          "after": 50,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "south",
+          "metric": "transport",
+          "baseline": 45,
+          "contributions": [],
+          "rawAfter": 45,
+          "after": 45,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "south",
+          "metric": "greenery",
+          "baseline": 50,
+          "contributions": [],
+          "rawAfter": 50,
+          "after": 50,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "south",
+          "metric": "social",
+          "baseline": 45,
+          "contributions": [],
+          "rawAfter": 45,
+          "after": 45,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "south",
+          "metric": "safety",
+          "baseline": 55,
+          "contributions": [],
+          "rawAfter": 55,
+          "after": 55,
+          "clampAdjustment": 0
+        },
+        {
+          "districtId": "south",
+          "metric": "service",
+          "baseline": 55,
+          "contributions": [],
+          "rawAfter": 55,
+          "after": 55,
+          "clampAdjustment": 0
+        }
+      ],
+      "facts": [
+        {
+          "id": "budget:spent",
+          "kind": "budget",
+          "label": "Потрачено",
+          "value": 70,
+          "unit": "условных единиц"
+        },
+        {
+          "id": "score:after",
+          "kind": "score",
+          "label": "Итоговая оценка",
+          "value": 52.53,
+          "unit": "баллов"
+        },
+        {
+          "id": "district:north:transport:after",
+          "kind": "metric",
+          "label": "north: transport",
+          "value": 60,
+          "unit": "баллов",
+          "districtId": "north"
+        },
+        {
+          "id": "district:north:greenery:after",
+          "kind": "metric",
+          "label": "north: greenery",
+          "value": 68,
+          "unit": "баллов",
+          "districtId": "north"
+        },
+        {
+          "id": "district:north:social:after",
+          "kind": "metric",
+          "label": "north: social",
+          "value": 50,
+          "unit": "баллов",
+          "districtId": "north"
+        },
+        {
+          "id": "district:north:safety:after",
+          "kind": "metric",
+          "label": "north: safety",
+          "value": 60,
+          "unit": "баллов",
+          "districtId": "north"
+        },
+        {
+          "id": "district:north:service:after",
+          "kind": "metric",
+          "label": "north: service",
+          "value": 50,
+          "unit": "баллов",
+          "districtId": "north"
+        },
+        {
+          "id": "district:center:transport:after",
+          "kind": "metric",
+          "label": "center: transport",
+          "value": 65,
+          "unit": "баллов",
+          "districtId": "center"
+        },
+        {
+          "id": "district:center:greenery:after",
+          "kind": "metric",
+          "label": "center: greenery",
+          "value": 35,
+          "unit": "баллов",
+          "districtId": "center"
+        },
+        {
+          "id": "district:center:social:after",
+          "kind": "metric",
+          "label": "center: social",
+          "value": 60,
+          "unit": "баллов",
+          "districtId": "center"
+        },
+        {
+          "id": "district:center:safety:after",
+          "kind": "metric",
+          "label": "center: safety",
+          "value": 40,
+          "unit": "баллов",
+          "districtId": "center"
+        },
+        {
+          "id": "district:center:service:after",
+          "kind": "metric",
+          "label": "center: service",
+          "value": 50,
+          "unit": "баллов",
+          "districtId": "center"
+        },
+        {
+          "id": "district:south:transport:after",
+          "kind": "metric",
+          "label": "south: transport",
+          "value": 45,
+          "unit": "баллов",
+          "districtId": "south"
+        },
+        {
+          "id": "district:south:greenery:after",
+          "kind": "metric",
+          "label": "south: greenery",
+          "value": 50,
+          "unit": "баллов",
+          "districtId": "south"
+        },
+        {
+          "id": "district:south:social:after",
+          "kind": "metric",
+          "label": "south: social",
+          "value": 45,
+          "unit": "баллов",
+          "districtId": "south"
+        },
+        {
+          "id": "district:south:safety:after",
+          "kind": "metric",
+          "label": "south: safety",
+          "value": 55,
+          "unit": "баллов",
+          "districtId": "south"
+        },
+        {
+          "id": "district:south:service:after",
+          "kind": "metric",
+          "label": "south: service",
+          "value": 55,
+          "unit": "баллов",
+          "districtId": "south"
+        },
+        {
+          "id": "effect:transport-premium:north:transport",
+          "kind": "effect",
+          "label": "transport-premium:gain",
+          "value": 21,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "transport-premium",
+          "ruleId": "transport-premium:gain"
+        },
+        {
+          "id": "effect:service-basic:north:transport",
+          "kind": "effect",
+          "label": "service-basic:tradeoff",
+          "value": -1,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "service-basic",
+          "ruleId": "service-basic:tradeoff"
+        },
+        {
+          "id": "effect:transport-premium:north:greenery",
+          "kind": "effect",
+          "label": "transport-premium:tradeoff",
+          "value": -3,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "transport-premium",
+          "ruleId": "transport-premium:tradeoff"
+        },
+        {
+          "id": "effect:greenery-basic:north:greenery",
+          "kind": "effect",
+          "label": "greenery-basic:gain",
+          "value": 6,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "greenery-basic",
+          "ruleId": "greenery-basic:gain"
+        },
+        {
+          "id": "effect:greenery-basic:north:social",
+          "kind": "effect",
+          "label": "greenery-basic:tradeoff",
+          "value": -1,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "greenery-basic",
+          "ruleId": "greenery-basic:tradeoff"
+        },
+        {
+          "id": "effect:social-basic:north:social",
+          "kind": "effect",
+          "label": "social-basic:gain",
+          "value": 6,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "social-basic",
+          "ruleId": "social-basic:gain"
+        },
+        {
+          "id": "effect:social-basic:north:safety",
+          "kind": "effect",
+          "label": "social-basic:tradeoff",
+          "value": -1,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "social-basic",
+          "ruleId": "social-basic:tradeoff"
+        },
+        {
+          "id": "effect:safety-basic:north:safety",
+          "kind": "effect",
+          "label": "safety-basic:gain",
+          "value": 6,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "safety-basic",
+          "ruleId": "safety-basic:gain"
+        },
+        {
+          "id": "effect:safety-basic:north:service",
+          "kind": "effect",
+          "label": "safety-basic:tradeoff",
+          "value": -1,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "safety-basic",
+          "ruleId": "safety-basic:tradeoff"
+        },
+        {
+          "id": "effect:service-basic:north:service",
+          "kind": "effect",
+          "label": "service-basic:gain",
+          "value": 6,
+          "unit": "баллов",
+          "districtId": "north",
+          "initiativeId": "service-basic",
+          "ruleId": "service-basic:gain"
+        }
+      ],
+      "warnings": []
+    }
+  }
+}
