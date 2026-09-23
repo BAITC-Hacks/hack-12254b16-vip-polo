@@ -1,0 +1,70 @@
+.panel { color: #193529; background: #fffef9; border: 1px solid #cad4cb; border-radius: 20px; padding: clamp(16px, 3vw, 32px); display: grid; gap: 28px; min-width: 0; }
+.panel h2, .panel h3, .panel h4, .panel p { margin: 0; }
+.panel h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
+.panel h3 { font-size: 1.1rem; margin-bottom: 12px; }
+.panel h4 { font-size: 1rem; margin-bottom: 8px; }
+.header, .analysisHeader { display: flex; align-items: start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.eyebrow { font-size: .75rem; text-transform: uppercase; letter-spacing: .09em; color: #526657; }
+.badge { padding: 5px 10px; font-size: .8rem; border: 1px solid #a4b7a7; border-radius: 30px; background: #eef4e9; }
+.disclaimer, .muted, .versions { color: #526657; font-size: .9rem; }
+.summary { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+.scoreCard, .budgetCard { border-radius: 14px; padding: 20px; }
+.scoreCard { background: #1d4535; color: #fffef9; }
+.budgetCard { background: #edf2e6; }
+.scoreNumbers, .budgetNumbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+.scoreNumbers dt, .budgetNumbers dt { font-size: .8rem; }
+.scoreNumbers dd, .budgetNumbers dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; font-size: clamp(1.4rem, 3vw, 2rem); }
+.scoreCard > p, .budgetCard > p { font-size: .8rem; }
+.districts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 16px; margin-top: 16px; }
+.districtCard { border: 1px solid #d9dfd5; border-radius: 12px; min-width: 0; padding: 12px; }
+.districtCard table { width: 100%; border-collapse: collapse; font-size: .83rem; font-variant-numeric: tabular-nums; }
+.districtCard caption { text-align: left; font-weight: 700; font-size: 1rem; margin-bottom: 12px; overflow-wrap: anywhere; }
+.districtCard th, .districtCard td { padding: 8px 3px; text-align: right; border-bottom: 1px solid #e0e5dc; }
+.districtCard th:first-child { text-align: left; overflow-wrap: anywhere; }
+.districtCard tbody th { font-weight: 400; }
+.districtCard thead th { font-size: .73rem; color: #526657; }
+.negative { color: #9e3627; }
+.mobileLabel, .mobileAccessibleLabel { display: none; }
+.notice { background: #fff2d4; border-left: 3px solid #976423; padding: 12px 16px; border-radius: 4px; }
+.notice ul { margin: 0; padding-left: 18px; }
+.analysis { border-top: 1px solid #d9dfd5; border-bottom: 1px solid #d9dfd5; padding: 24px 0; display: grid; gap: 16px; }
+.analysisHeader h3 { margin-bottom: 0; }
+.analysisGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.analysisGroup { background: #f4f6ef; border-radius: 12px; padding: 16px; min-width: 0; }
+.analysisGroup > ul { margin: 0; padding-left: 18px; display: grid; gap: 16px; }
+.explanation { overflow-wrap: anywhere; }
+.references { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; font-size: .78rem; }
+.references a { display: inline-block; color: #294e3c; background: #e6edde; border-radius: 5px; padding: 5px 8px; text-decoration: underline; text-underline-offset: 3px; }
+.factsViewport { margin-top: 12px; max-height: 360px; overflow: auto; border: 1px solid #d9dfd5; border-radius: 10px; }
+.facts { margin: 0; }
+.facts > div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e0e5dc; scroll-margin: 16px; }
+.facts > div:last-child { border-bottom: 0; }
+.facts > div:target { background: #fff2d4; }
+.facts dt { overflow-wrap: anywhere; min-width: 0; }
+.facts code { display: block; font-size: .72rem; color: #526657; }
+.facts dd { margin: 0; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: .9rem; }
+.footer { display: grid; gap: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.primaryButton, .secondaryButton { font: inherit; font-weight: 600; border: 1px solid #1d4535; border-radius: 8px; padding: 10px 16px; cursor: pointer; min-height: 44px; width: fit-content; }
+.primaryButton { background: #1d4535; color: #fffef9; }
+.secondaryButton { background: #fffef9; color: #1d4535; }
+.primaryButton:hover, .secondaryButton:hover { filter: brightness(.94); }
+.secondaryButton:disabled { cursor: wait; opacity: .65; }
+.panel :focus-visible { outline: 3px solid #976423; outline-offset: 3px; }
+.versions { overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .summary, .analysisGrid { grid-template-columns: 1fr; }
+  .panel { gap: 22px; border-radius: 12px; }
+  .actions { display: grid; }
+  .actions button { width: 100%; }
+  .scoreCard, .budgetCard { padding: 16px; }
+}
+@media (max-width: 380px) {
+  .desktopLabel { display: none; }
+  .mobileLabel { display: inline; }
+  .mobileAccessibleLabel { display: block; position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .districtCard { padding: 8px; }
+  .districtCard table { font-size: .75rem; }
+  .facts > div { flex-direction: column; gap: 4px; }
+  .facts dd { text-align: left; }
+}
