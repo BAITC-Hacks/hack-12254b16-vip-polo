@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GameShellProps } from "@/shared/ports";
+import { simulateScenario } from "@/lib/simulation";
 import { ResultsPanel } from "@/features/results";
 import { CityMap } from "./CityMap";
 import { InitiativePicker } from "./InitiativePicker";
@@ -19,10 +20,21 @@ function GameSession({ data }: GameShellProps) {
   const [districtId, setDistrictId] = useState(data.districts[0]?.id ?? "");
   const [direction, setDirection] = useState(data.config.directions[0]);
   const [briefing, setBriefing] = useState(true);
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (game.result) resultHeading.current?.focus();
+  }, [game.result]);
   const selected = game.decisions.find(item => item.direction === direction);
   const district = data.districts.find(item => item.id === districtId);
   const shown = game.result ?? game.preview;
   const canFinish = game.preview?.complete === true && !game.submitting && game.analysisState.status !== "loading";
+  const nextDirection = data.config.directions.find(item => item !== direction && !game.decisions.some(decision => decision.direction === item));
+  // The model validates each full candidate, including the released replacement cost.
+  const candidates = Object.fromEntries(data.initiatives.filter(item => item.direction === direction).map(item => [item.id, simulateScenario({
+    modelVersion: data.config.modelVersion,
+    datasetVersion: data.config.datasetVersion,
+    decisions: [...game.decisions.filter(decision => decision.direction !== direction), { direction, districtId, initiativeId: item.id }]
+  }, data, "draft")]));
   return <div className={styles.shell}>
     <header className={styles.header}><a className={styles.brand} href="#main-content"><span className={styles.brandMark} aria-hidden="true">А</span>ГОРОД / ЛАБ</a><span className={styles.headerNote}>VIP POLO · Учебный симулятор</span><button className={styles.textButton} onClick={() => setBriefing(value => !value)} aria-expanded={briefing} aria-controls="briefing">Как играть {briefing ? "−" : "+"}</button></header>
     <div id="main-content" className={styles.hero}>
@@ -34,8 +46,9 @@ function GameSession({ data }: GameShellProps) {
       <div><span>Общий бюджет</span><strong>{data.config.budget} <small>{data.config.currencyLabel}</small></strong></div>
       <div><span>Остаток бюджета</span><strong aria-live="polite">{shown ? formatNumber(shown.budget.remaining) : "—"}<small>{shown ? "условных единиц" : "ожидает расчёта"}</small></strong></div>
       <div><span>Решения</span><strong>{game.decisions.length} <small>из {data.config.directions.length}</small></strong><progress value={game.decisions.length} max={data.config.directions.length} aria-label="Прогресс решений" /></div>
-      <div><span>Учебный Score</span><strong>{shown ? formatNumber(shown.score.after) : "—"}<small>{shown ? "/ 100" : "ожидает расчёта"}</small></strong></div>
+      <div><span>Учебный Score</span><strong>{shown ? formatNumber(shown.score.after) : "—"}<small>{shown ? "/ 100" : "ожидает расчёта"}</small></strong>{shown && <span className={styles.scoreChange}>{shown.score.delta > 0 ? "+" : ""}{formatNumber(shown.score.delta)} к исходному {formatNumber(shown.score.before)}</span>}</div>
     </section>
+    {shown && <div className={styles.budgetTrack}><span>Использовано {formatNumber(shown.budget.spent)} из {formatNumber(shown.budget.initial)}</span><progress value={shown.budget.spent} max={shown.budget.initial} aria-label="Использованный бюджет" /><span>{game.result ? "Проверено на сервере" : "Предварительный результат"}</span></div>}
     {game.unavailable && <p className={styles.notice} role="status"><strong>Расчёт ещё не подключён.</strong> Можно собрать черновик решений. Бюджет и последствия пока не проверяются; полное прохождение недоступно.</p>}
     {!game.previewOutcome.ok && !game.unavailable && <p role="alert" className={styles.error}>{game.previewOutcome.error.message}</p>}
     <div className={styles.workspace}>
@@ -46,12 +59,15 @@ function GameSession({ data }: GameShellProps) {
         {selected && <p className={styles.selectionNote}>Текущее решение: {data.districts.find(d => d.id === selected.districtId)?.name}. {selected.districtId !== districtId && "Новый выбор перенесёт это решение в выбранный район."}</p>}
         {district && <InitiativePicker initiatives={data.initiatives} direction={direction} districtId={districtId}
           selectedInitiativeId={selected?.districtId === districtId ? selected.initiativeId : null} remainingBudget={game.preview?.budget.remaining ?? 0}
+          candidates={candidates} replacing={!!selected}
           onSelect={initiativeId => game.select({ direction, districtId, initiativeId })} onRemove={() => game.remove(direction)} />}
+        {selected && nextDirection && <button className={styles.nextButton} onClick={() => setDirection(nextDirection)}>Далее: {directionLabels[nextDirection]} <span aria-hidden="true">→</span></button>}
         {game.error && <p className={styles.error} role="alert">{game.error}</p>}
         <section className={styles.plan} aria-label="Ваши решения"><h3>В вашем плане <span>{game.decisions.length} / {data.config.directions.length}</span></h3>
           {!game.decisions.length ? <p className={styles.small}>Пока пусто. Начните с одного мероприятия.</p> : <ul>{data.config.directions.flatMap(item => {
             const decision = game.decisions.find(d => d.direction === item); if (!decision) return [];
-            return <li key={item}><div><strong>{directionLabels[item]}</strong><span>{data.initiatives.find(i => i.id === decision.initiativeId)?.title} · {data.districts.find(d => d.id === decision.districtId)?.name}</span></div><button className={styles.textButton} aria-label={`Удалить: ${directionLabels[item]}`} onClick={() => game.remove(item)}>×</button></li>;
+            const initiative = data.initiatives.find(i => i.id === decision.initiativeId);
+            return <li key={item}><button className={styles.planEdit} aria-label={`Изменить: ${directionLabels[item]}`} onClick={() => { setDirection(item); setDistrictId(decision.districtId); }}><strong>{directionLabels[item]} <em>{initiative?.cost} ед.</em></strong><span>{initiative?.title} · {data.districts.find(d => d.id === decision.districtId)?.name}</span></button><button className={styles.textButton} aria-label={`Удалить: ${directionLabels[item]}`} onClick={() => game.remove(item)}>×</button></li>;
           })}</ul>}
         </section>
         <div className={styles.actions}><button className={styles.primaryButton} disabled={!canFinish} onClick={() => void game.finish()}>{game.submitting ? "Рассчитываем…" : "Завершить сценарий"}<span aria-hidden="true">↗</span></button><button className={styles.textButton} disabled={!game.decisions.length && !game.result} onClick={game.replay}>Начать заново</button></div>
@@ -59,9 +75,7 @@ function GameSession({ data }: GameShellProps) {
       </section>
     </div>
     {game.result && <section className={styles.resultArea} aria-label="Итог сценария">
-      <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>03 / Последствия</p><h2>Сценарий рассчитан</h2></div><button className={styles.textButton} onClick={game.edit}>Редактировать решения</button></div>
-      <div role="status" aria-live="polite">{game.analysisState.status === "loading" ? "Готовим AI-анализ. Расчёт уже доступен." : game.analysisState.status === "error" ? `Анализ недоступен: ${game.analysisState.message}` : game.analysisState.status === "ready" ? game.analysisState.analysis.source === "fallback" ? "Доступно локальное объяснение без AI." : "AI-анализ получен." : "Расчёт готов."}</div>
-      {game.analysisState.status !== "loading" && <button className={styles.textButton} onClick={() => void game.retryAnalysis()}>Повторить AI-анализ</button>}
+      <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>03 / Последствия</p><h2 ref={resultHeading} tabIndex={-1}>Сценарий рассчитан</h2></div><button className={styles.textButton} onClick={game.edit}>Редактировать решения</button></div>
       <ResultsPanel result={game.result} analysisState={game.analysisState} onRetryAnalysis={() => void game.retryAnalysis()} onReplay={game.replay} onEdit={game.edit} />
     </section>}
     <footer className={styles.footer}><strong>Город — условный. Выбор — ваш.</strong><p>Данные синтетические. Районы не соответствуют административной карте Астаны. Score — учебный показатель, а не официальная оценка города или рекомендация акимату.</p><span>{data.config.modelVersion} · {data.config.datasetVersion}</span></footer>
