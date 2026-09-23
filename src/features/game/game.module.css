@@ -73,6 +73,21 @@
 .choiceButton:hover { background: #e1ebd2; }
 .choiceButton[aria-pressed="true"] { background: #31543c; color: white; }
 .choiceButton:disabled { opacity: .5; }
+.effectBadges { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0 !important; margin: 0 0 14px; }
+.effectBadges li { border-radius: 4px; padding: 5px 8px; font-size: .75rem; margin: 0; }
+.positiveEffect { color: #234e35; background: #e7efda; }
+.negativeEffect { color: #853817; background: #f8e9dc; }
+.candidateBudget { padding-top: 10px; border-top: 1px solid #dce0d2; }
+.card .unaffordable { color: #853817; }
+.budgetTrack { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 14px 0; color: #52634d; font-size: .75rem; }
+.budgetTrack progress { flex: 1; min-width: 80px; height: 6px; accent-color: #55743f; }
+.overview .scoreChange { font-size: .7rem; margin-top: 8px; color: #e3edce; }
+.nextButton { display: flex; justify-content: space-between; gap: 20px; width: 100%; background: #e7eddd; color: #254e3c; border: 1px solid #cad6bd; border-radius: 4px; padding: 13px 16px; min-height: 44px; font-size: .85rem; }
+.plan li .planEdit { flex: 1; min-width: 0; padding: 6px; margin-left: -6px; border: 0; background: transparent; color: inherit; text-align: left; }
+.planEdit:hover { background: #e9edde !important; }
+.planEdit strong { display: flex !important; justify-content: space-between; gap: 12px; }
+.planEdit em { font-style: normal; font-weight: 400; white-space: nowrap; color: #53644a; }
+.planEdit span { overflow-wrap: anywhere; }
 .plan { margin: 28px 0 20px; border-top: 1px solid #d9ddd3; padding-top: 22px; }
 .plan h3 { display: flex; justify-content: space-between; }
 .plan h3 span { font-size: .8rem; font-weight: 400; }

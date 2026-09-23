@@ -11,6 +11,7 @@ import { scenarios } from "../fixtures";
 
 vi.mock("@/lib/simulation", async importOriginal => ({ ...await importOriginal<typeof import("@/lib/simulation")>(), simulateScenario: vi.fn() }));
 const data = getGameData();
+const title = (id: string) => data.initiatives.find(item => item.id === id)!.title;
 const simulate = vi.mocked(simulateScenario);
 const fetchMock = vi.fn<typeof fetch>();
 const resultA = (scenarios.A.expected as { ok: true; data: SimulationResult }).data;
@@ -157,9 +158,9 @@ it("connects the UI completion, immediate result, retry and edit callbacks", asy
     .mockResolvedValueOnce(response({ ok: true, data: { simulation: resultA, analysis: analysis(resultA, "fallback") } }));
   const user = userEvent.setup(); render(<GameShell data={data} />);
   const directions = screen.getByRole("group", { name: "Направления" });
-  for (const button of within(directions).getAllByRole("button")) {
+  for (const [index, button] of within(directions).getAllByRole("button").entries()) {
     await user.click(button);
-    await user.click(screen.getByRole("button", { name: /Выбрать:.*базовый/ }));
+    await user.click(screen.getByRole("button", { name: `Выбрать: ${title(`${data.config.directions[index]}-basic`)}` }));
   }
   const finish = screen.getByRole("button", { name: /Завершить сценарий/ });
   expect(finish).toBeEnabled(); await user.click(finish);
@@ -167,7 +168,8 @@ it("connects the UI completion, immediate result, retry and edit callbacks", asy
   expect(screen.getByText(/Анализ недоступен: Нет связи/)).toBeVisible();
   expect(screen.getByRole("region", { name: "Состояние сценария" })).toHaveTextContent("51,67");
   await user.click(screen.getByRole("button", { name: "Повторить AI-анализ" }));
-  expect(await screen.findByText("Доступно локальное объяснение без AI.")).toBeVisible();
+  expect(await screen.findByText("Fallback · без AI")).toBeVisible();
+  expect(screen.getByText(/Это не ответ AI/)).toBeVisible();
   await user.click(screen.getByRole("button", { name: "Редактировать решения" }));
   expect(screen.queryByRole("region", { name: "Итог сценария" })).not.toBeInTheDocument();
   expect(within(screen.getByRole("region", { name: "Ваши решения" })).getAllByRole("listitem")).toHaveLength(5);
@@ -176,8 +178,8 @@ it("connects the UI completion, immediate result, retry and edit callbacks", asy
 it("cancels the session if the server supplies a new dataset version", async () => {
   const old = deferred<Response>(); fetchMock.mockReturnValueOnce(old.promise);
   const user = userEvent.setup(); const view = render(<GameShell data={data} />);
-  for (const button of within(screen.getByRole("group", { name: "Направления" })).getAllByRole("button")) {
-    await user.click(button); await user.click(screen.getByRole("button", { name: /Выбрать:.*базовый/ }));
+  for (const [index, button] of within(screen.getByRole("group", { name: "Направления" })).getAllByRole("button").entries()) {
+    await user.click(button); await user.click(screen.getByRole("button", { name: `Выбрать: ${title(`${data.config.directions[index]}-basic`)}` }));
   }
   await user.click(screen.getByRole("button", { name: /Завершить сценарий/ }));
   view.rerender(<GameShell data={{ ...data, config: { ...data.config, datasetVersion: "synthetic-v2" } }} />);

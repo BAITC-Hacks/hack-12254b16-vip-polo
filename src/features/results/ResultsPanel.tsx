@@ -1,11 +1,13 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { getGameData } from "@/lib/simulation";
 import { DIRECTIONS } from "@/shared/constants";
 import type { ResultsPanelProps } from "@/shared/ports";
 import type { AnalysisPoint, Direction, Fact } from "@/shared/types";
 import { createResultsExport, matchingAnalysis } from "./export";
 import styles from "./results.module.css";
+import { SimulationDetails } from "./SimulationDetails";
 
 const metricLabels: Record<Direction, string> = {
   transport: "Транспорт", greenery: "Озеленение", social: "Социальная среда",
@@ -38,6 +40,9 @@ function Explanation({ point, facts, idPrefix }: { point: AnalysisPoint; facts: 
 
 export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay, onEdit }: ResultsPanelProps) {
   const id = useId();
+  const data = useMemo(() => getGameData(), []);
+  const catalogMatches = data.config.modelVersion === result.modelVersion && data.config.datasetVersion === result.datasetVersion;
+  const districtNames = new Map(catalogMatches ? data.districts.map(district => [district.id, district.name]) : []);
   const [exportMessage, setExportMessage] = useState("");
   const analysis = matchingAnalysis(result, analysisState);
   const loading = analysisState.status === "loading";
@@ -89,17 +94,19 @@ export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay,
           <div><dt>Потрачено</dt><dd>{number(result.budget.spent)}</dd></div>
           <div><dt>Осталось</dt><dd>{number(result.budget.remaining)}</dd></div>
         </dl>
+        <progress className={styles.budgetProgress} value={result.budget.spent} max={result.budget.initial || 1} aria-label="Использованный бюджет" />
         <p>Условных единиц. Экономия не добавляет баллы.</p>
+        <p className={styles.completeness}>{result.complete ? "Все направления включены в план" : "Промежуточный результат: план ещё не завершён"}</p>
       </section>
     </div>
     {result.warnings.length > 0 && <section className={styles.notice} aria-label="Оговорки расчёта"><ul>{result.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></section>}
 
     <section aria-labelledby={`${id}-districts`}>
       <h3 id={`${id}-districts`}>Изменения районов</h3>
-      <p className={styles.muted}>Все показатели взяты из расчёта. Больше — лучше. Районы указаны по идентификаторам сценария.</p>
+      <p className={styles.muted}>Все показатели взяты из расчёта. Больше — лучше.</p>
       <div className={styles.districts}>{result.districts.map(district => <div className={styles.districtCard} key={district.districtId}>
         <table>
-          <caption>Район {district.districtId}</caption>
+          <caption>{districtNames.has(district.districtId) ? `${districtNames.get(district.districtId)} район` : `Район ${district.districtId}`}</caption>
           <thead><tr><th scope="col">Показатель</th><th scope="col">До</th><th scope="col">После</th><th scope="col"><span className={styles.desktopLabel}>Изменение</span><span className={styles.mobileLabel} aria-hidden="true">Δ</span><span className={styles.mobileAccessibleLabel}>Изменение</span></th></tr></thead>
           <tbody>{DIRECTIONS.map(metric => {
             const delta = district.after[metric] - district.before[metric];
@@ -117,7 +124,7 @@ export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay,
         {analysisState.status === "idle" && <p>Расчёт готов. AI-анализ ещё не запущен.</p>}
         {loading && <p>Готовим AI-анализ… Расчёт и JSON-экспорт уже доступны.</p>}
         {analysisState.status === "error" && <p className={styles.notice}>Анализ недоступен: {analysisState.message} Расчёт сохранён.</p>}
-        {mismatched && <p className={styles.notice}>Объяснение не соответствует текущему сценарию. Повторите анализ. Расчёт сохранён.</p>}
+        {mismatched && <p role="alert" className={styles.notice}>Объяснение не соответствует текущему сценарию или ссылается на неизвестные факты. Повторите анализ. Расчёт сохранён.</p>}
         {analysis?.source === "fallback" && <p className={styles.notice}>{fallbackReasons[analysis.status]} Это не ответ AI.</p>}
         {analysis?.source === "ai" && <p className={styles.muted}>AI объясняет готовый расчёт и не меняет Score. Сверяйте выводы с указанными фактами.</p>}
       </div>
@@ -132,6 +139,8 @@ export function ResultsPanel({ result, analysisState, onRetryAnalysis, onReplay,
       </>}
       <button type="button" className={styles.secondaryButton} onClick={onRetryAnalysis} disabled={loading}>{loading ? "Анализ выполняется…" : analysisState.status === "idle" ? "Запустить AI-анализ" : "Повторить AI-анализ"}</button>
     </section>
+
+    <SimulationDetails result={result} />
 
     <section aria-labelledby={`${id}-facts`}>
       <h3 id={`${id}-facts`}>Факты расчёта</h3>

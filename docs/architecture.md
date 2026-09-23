@@ -1,28 +1,49 @@
 # Архитектура
 
-Next.js App Router. Серверная page.tsx получает копию JSON через getGameData и передаёт GameShell. Чистый simulation в будущем работает и в браузере, и на сервере. AI помечен server-only. CSS Modules внутри модулей; SVG-карта появится у участника 1.
+Next.js App Router, TypeScript strict, CSS Modules и SVG. Ветка feat/integration-audit соединяет PR №2 (simulation), №3 (game), №4 (AI/results) и №5 (UI polish). Это интеграционный кандидат, не объединённая main. Фактические SHA и результаты проверки — в docs/integration.md.
+
+Серверная page.tsx получает независимую копию JSON через getGameData и передаёт её GameShell. Чистый simulation работает в браузере и на сервере. AI помечен server-only. CityMap остаётся реализацией PR №3: отдельное заявленное улучшение карты в опубликованных ветках не найдено.
 
 ```text
 JSON -> getGameData -> page -> GameShell
-GameShell -> preview: simulateScenario(draft)
+GameShell -> simulateScenario(draft) -> preview / CityMap
 GameShell -> /api/simulate -> simulateScenario(final) -> ResultsPanel
-GameShell -> /api/analysis -> simulateScenario(final) -> AI -> ResultsPanel
+GameShell -> /api/analysis -> simulateScenario(final) -> verified facts
+verified facts -> provider -> validated explanation OR marked fallback -> ResultsPanel
 ```
 
-Расчётные/AI-стрелки — будущие соединения. Сейчас getGameData работает, расчётные экспорты возвращают NOT_IMPLEMENTED, API — 501. Компоненты карты, выбора и результатов — placeholders.
+Это реализованные соединения. Оба API проверяют исходные идентификаторы и версии; клиентские Score, бюджет и факты не принимаются. Стартовые заглушки HTTP 501 заменены обработчиками по контракту: 200, 400, 409, 422, 413 и 500. Размер запроса ограничен фактическими 16 KiB.
 
-Типы: src/shared/types.ts; runtime-схемы: schema.ts; сигнатуры модулей и props: ports.ts. Схемы проверяют форму JSON и source/status AI. Бизнес-правила проверит участник 2. Существование factIds и смысловую корректность AI проверит участник 3.
+## Контракт и расчёт
 
-## Временное поведение AI-помощников
+Типы находятся в src/shared/types.ts, runtime-схемы — schema.ts, сигнатуры модулей и props — ports.ts. Бизнес-правила реализованы в simulation, едином для предварительного и серверного расчёта. Он каждый раз считает от baseline, суммирует эффекты до одного clamp и возвращает trace/facts. UI и AI не копируют формулу.
 
-analyzeScenario возвращает Outcome с NOT_IMPLEMENTED. buildAnalysisFacts по контракту возвращает Fact[], а buildFallbackAnalysis — AIAnalysis; вернуть Outcome без изменения сигнатуры невозможно. Поэтому оба сейчас выбрасывают ScaffoldNotImplementedError с code=NOT_IMPLEMENTED. Страница/API их не вызывают. Участник 3 заменит их реальными реализациями по тем же сигнатурам.
+makeScenarioId строит JSON из версий и отсортированных троек решений, не меняя ввод. Для одинаковых направлений применяется строковый tie-break. Это канонический ключ, не бизнес-валидация или криптографическое доказательство.
 
-makeScenarioId строит JSON из версий и отсортированных троек решений, не меняя ввод. Для одинаковых направлений применяется строковый tie-break. Это не бизнес-валидация и не криптографическое доказательство. UI в дальнейшем также отслеживает revision и отмену запросов.
+GameShell проверяет кандидата замены целиком, исключив прежнее решение направления. Запросы и состояние принадлежат useGame. Изменение решения повышает revision, отменяет текущий запрос и очищает устаревший результат. Приём ответа ограничен активной revision, scenarioId и версиями; возврат к прежнему сценарию не разрешает отменённый ответ. При смене версии GameShell создаёт новую сессию.
 
-## Fixtures
+После успешного /api/simulate расчёт сразу доступен. Затем запрашивается /api/analysis; ошибка анализа не стирает расчёт, повтор инициируется пользователем.
 
-Статические A–E содержат полные ожидаемые показатели, trace и facts. Runtime их не импортирует (контролируется ESLint). Тесты проверяют согласованность ожидаемых данных, а не работу ещё отсутствующего движка.
+## AI и результаты
 
-Порядок trace: north/center/south, затем порядок направлений; contributions в порядке направлений решений. Идентификаторы facts: budget:spent, score:after, district:<districtId>:<metric>:after, effect:<initiativeId>:<districtId>:<metric>. Это конвенция стартового набора. Изменения координатор синхронизирует с fixtures. Подписи не использовать как ID.
+analyzeScenario принимает неизвестный ввод, проверяет запрос и повторяет final-симуляцию на сервере. buildAnalysisFacts сверяет факты с расчётом, trace и каталогом. buildFallbackAnalysis возвращает AIAnalysis по исходной сигнатуре; исключения временных scaffold-помощников больше не являются рабочим поведением.
 
-Vitest заменяет только marker server-only тестовым пустым модулем. Next.js в production использует настоящий marker и запрещает клиентский импорт AI.
+Серверный адаптер использует OpenAI Responses API и AI_PROVIDER=openai, AI_MODEL, AI_API_KEY, AI_TIMEOUT_MS. Название модели задаётся окружением; её реальная доступность пока не подтверждена. По умолчанию вызов ограничен 15000 мс, без автоматических повторов.
+
+Ответ провайдера проверяется схемой объяснения, ограничениями текста и ссылками на существующие factIds. Только валидный ответ получает source=ai/status=ready. Отсутствие настроек или сбой дают source=fallback/status=unavailable; таймаут и неверный ответ различаются как timeout/invalid_response. Структурная проверка не доказывает смысловую точность: нужен просмотр настоящего ответа.
+
+ResultsPanel не выполняет fetch и не импортирует серверный AI. Она показывает числа из SimulationResult, отдельно объяснение, состояние загрузки/ошибки, callbacks редактирования/повтора/новой игры и JSON-экспорт. Общий matchingAnalysis проверяет схему, версии, scenarioId и ссылки на факты перед отображением и экспортом.
+
+При разрешении конфликта PR №4/№5 сохранены экспорт, callbacks и доступность реализации участника 3. Городские показатели и раскрываемый trace из UI polish вынесены в SimulationDetails; компонент не выполняет симуляцию. Названия и описания берутся из существующего каталога только при совпадении его версий с результатом.
+
+## Проверки и fixtures
+
+Статические A–E содержат независимо заданные ожидаемые показатели, trace и facts. Runtime их не импортирует (это ограничивает ESLint). Тесты сопоставляют реальную модель с fixtures; mocks провайдера предназначены только для изолированных тестов ошибок и состояний.
+
+Порядок trace: north/center/south, затем порядок направлений; contributions — в порядке направлений решений. Идентификаторы facts: budget:spent, score:after, district:<districtId>:<metric>:after, effect:<initiativeId>:<districtId>:<metric>. Изменения координатор синхронизирует с контрактом; подписи не используются как ID.
+
+Vitest заменяет только marker server-only тестовым пустым модулем. Next.js использует настоящий marker и запрещает клиентский импорт AI.
+
+Обычные тесты, сборка и e2e не требуют ключа. Playwright очищает AI_PROVIDER, AI_MODEL и AI_API_KEY в окружении своего production-сервера и проверяет fallback без сети провайдера. test:ai-live отдельно запускает tests/live-ai/vitest.config.ts, читает игнорируемый .env.local и требует реального source=ai/status=ready. Полученный fallback не засчитывается как успех.
+
+Полный браузерный CLI-прогон и live-AI пока не подтверждены для интеграционного кандидата. Не выводить готовность из наличия тестов или отчётов отдельных веток; актуальные результаты и ограничения указываются в docs/integration.md.

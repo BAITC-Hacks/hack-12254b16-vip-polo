@@ -50,7 +50,7 @@ describe("ResultsPanel", () => {
     const budget = screen.getByRole("region", { name: "Бюджет" });
     expect(within(budget).getByText("100")).toBeVisible();
     expect(within(budget).getAllByText("50")).toHaveLength(2);
-    const north = screen.getByRole("table", { name: "Район north" });
+    const north = screen.getByRole("table", { name: "Северный район" });
     const transport = within(north).getByRole("row", { name: "Транспорт 40 45 +5" });
     expect(transport).toBeVisible();
     expect(screen.getAllByRole("table")).toHaveLength(3);
